@@ -14,10 +14,12 @@ public class Picture {
     @NonNull
     private String id = "";
     private String imageFilePath;
+    private String imageThumbnailFilePath;
 
-    public Picture(String id, String imageFilePath) {
+    public Picture(@NonNull String id, String imageFilePath, String imageThumbnailFilePath) {
         this.id = id;
         this.imageFilePath = imageFilePath;
+        this.imageThumbnailFilePath = imageThumbnailFilePath;
     }
 
     public String getId() {
@@ -34,5 +36,13 @@ public class Picture {
 
     public void setImageFilePath(String imageFilePath) {
         this.imageFilePath = imageFilePath;
+    }
+
+    public String getImageThumbnailFilePath() {
+        return imageThumbnailFilePath;
+    }
+
+    public void setImageThumbnailFilePath(String imageThumbnailFilePath) {
+        this.imageThumbnailFilePath = imageThumbnailFilePath;
     }
 }

@@ -47,12 +47,11 @@ public class BitmapUtil {
         return bitmap;
     }
 
-    public static void saveBitmap(Bitmap bitmap, String fileName) {
+    public static void saveBitmap(Bitmap bitmap, String fileName, int quality) {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(fileName);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-            // PNG is a lossless format, the compression factor (100) is ignored
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, out); // bmp is your Bitmap instance
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

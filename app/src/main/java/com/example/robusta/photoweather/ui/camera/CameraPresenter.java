@@ -1,6 +1,7 @@
 package com.example.robusta.photoweather.ui.camera;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
@@ -8,6 +9,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.robusta.photoweather.R;
 import com.example.robusta.photoweather.local.DataStore;
@@ -35,6 +37,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
+import static android.app.ProgressDialog.show;
+
 /**
  * Created by robusta on 8/26/18.
  */
@@ -45,7 +49,7 @@ public class CameraPresenter implements CameraContract.Presenter {
     private CameraContract.View view;
     private ApiService darkSkyService;
     private FusedLocationProviderClient fusedLocationClient;
-
+    private ProgressDialog dialog;
 
     public CameraPresenter(CameraContract.View view) {
         this.view = view;
@@ -58,7 +62,7 @@ public class CameraPresenter implements CameraContract.Presenter {
 
     @Override
     public void stop() {
-
+        if (dialog != null) dialog.cancel();
     }
 
     @Override
@@ -67,23 +71,42 @@ public class CameraPresenter implements CameraContract.Presenter {
     }
 
     @Override
-    public void savePicture(Bitmap weatherPicture) {
-        SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss");
-        String pictureName = s.format(new Date()) + ".png";
+    public void savePicture(final Bitmap weatherPicture) {
 
-        File directory = new File(Environment.getExternalStorageDirectory(), "Weather Pictures");
-        if (!directory.exists()) directory.mkdirs();
-        File pictureFile = new File(directory, pictureName);
-        final Picture picture = new Picture(UUID.randomUUID().toString(), pictureFile.getPath());
+        dialog = ProgressDialog.show(view.getViewContext(), "",
+                "Saving...", true);
 
-        BitmapUtil.saveBitmap(weatherPicture, pictureFile.getPath());
 
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
+
+                SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss");
+                String pictureName = "IMG_" + s.format(new Date()) + ".jpeg";
+                String pictureThimbnailName = "Thumb_" + s.format(new Date()) + ".jpeg";
+
+                File directory = new File(Environment.getExternalStorageDirectory(), "Weather Pictures");
+                if (!directory.exists()) directory.mkdirs();
+                File pictureFile = new File(directory, pictureName);
+
+                File thumbDirectory = new File(directory, "thumbnails");
+                if (!thumbDirectory.exists()) thumbDirectory.mkdirs();
+                File pictureThumbnailFile = new File(thumbDirectory, pictureThimbnailName);
+                final Picture picture = new Picture(UUID.randomUUID().toString(), pictureFile.getPath(), pictureThumbnailFile.getPath());
+
+                BitmapUtil.saveBitmap(weatherPicture, pictureFile.getPath(), 100);
+                BitmapUtil.saveBitmap(weatherPicture, pictureThumbnailFile.getPath(), 25);
+
                 DataStore.getInstance(view.getViewContext())
                         .pictureDao()
                         .insert(picture);
+
+                AppExecutors.getInstance().mainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        view.finishView();
+                    }
+                });
             }
         });
     }
@@ -114,10 +137,10 @@ public class CameraPresenter implements CameraContract.Presenter {
                         return;
                     }
 
-                    // getLocationAddress(location);
                     getForecast(location.getLatitude(), location.getLongitude());
                 } else {
                     Log.d(TAG, "[getCurrentLocation] failure");
+                    Toast.makeText(view.getViewContext(), "Error getting location please try again", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -156,7 +179,7 @@ public class CameraPresenter implements CameraContract.Presenter {
             @Override
             public void onFailure(Call<String> call, Throwable t) {
                 Log.d(TAG, "[getForecast] onFailure");
-                // view.showErrorView();
+                Toast.makeText(view.getViewContext(), "Network Error please try again", Toast.LENGTH_SHORT).show();
             }
         });
     }

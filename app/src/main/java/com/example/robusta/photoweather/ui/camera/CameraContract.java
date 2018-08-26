@@ -13,6 +13,8 @@ public interface CameraContract {
         Context getViewContext();
 
         void showWeatherCard(String temperature, String summary);
+
+        void finishView();
     }
 
     interface Presenter {

@@ -87,24 +87,6 @@ public class CameraActivity extends AppCompatActivity implements CameraContract.
     private Bitmap picture;
     private Bitmap weatherPicture;
 
-    private CameraConfiguration cameraConfiguration = CameraConfiguration
-            .builder()
-            .photoResolution(standardRatio(
-                    highestResolution()
-            ))
-            .focusMode(firstAvailable(
-                    continuousFocusPicture(),
-                    autoFocus(),
-                    fixed()
-            ))
-            .flash(firstAvailable(
-                    autoRedEye(),
-                    autoFlash(),
-                    torch(),
-                    off()
-            ))
-            .build();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -197,6 +179,11 @@ public class CameraActivity extends AppCompatActivity implements CameraContract.
         addWeatherBtn.setVisibility(View.GONE);
         savePictureBtn.setVisibility(View.VISIBLE);
         cancelPictureBtn.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void finishView() {
+        onBackPressed();
     }
 
     private void showPreview() {

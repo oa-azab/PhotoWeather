@@ -69,7 +69,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
         }
 
         public void bindData(Picture picture) {
-            Picasso.get().load(new File(picture.getImageFilePath())).into(pictureImg);
+            Picasso.get().load(new File(picture.getImageThumbnailFilePath())).into(pictureImg);
         }
 
         @Override

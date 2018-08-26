@@ -51,7 +51,7 @@ public class DetailActivity extends AppCompatActivity {
     public void onShareClicked() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(currentPicture.getImageFilePath()));
-        shareIntent.setType("image/png");
+        shareIntent.setType("image/jpeg");
         startActivity(Intent.createChooser(shareIntent, "Share picture"));
     }
 }

@@ -21,4 +21,9 @@ public class CameraPresenter implements CameraContract.Presenter {
     public void stop() {
 
     }
+
+    @Override
+    public void addWeather() {
+
+    }
 }

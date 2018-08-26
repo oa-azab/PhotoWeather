@@ -16,5 +16,7 @@ public interface CameraContract {
         void start();
 
         void stop();
+
+        void addWeather();
     }
 }

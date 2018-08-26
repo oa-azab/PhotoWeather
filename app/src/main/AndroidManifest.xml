@@ -21,7 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.camera.CameraActivity"></activity>
+        <activity android:name=".ui.camera.CameraActivity" />
+        <activity android:name=".ui.detail.DetailActivity"></activity>
     </application>
 
 </manifest>

@@ -218,6 +218,6 @@ public class CameraActivity extends AppCompatActivity implements CameraContract.
 
     @OnClick(R.id.cancelPictureBtn)
     public void cancelPictureClicked() {
-
+        onBackPressed();
     }
 }

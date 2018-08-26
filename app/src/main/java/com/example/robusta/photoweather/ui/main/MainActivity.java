@@ -5,16 +5,22 @@ import android.content.Context;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.example.robusta.photoweather.R;
+import com.example.robusta.photoweather.ui.main.adapter.PictureAdapter;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -33,6 +39,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     @BindView(R.id.takePictureFab)
     FloatingActionButton takePictureFab;
 
+    @BindView(R.id.emptyStateTv)
+    TextView emptyStateTv;
+    @BindView(R.id.picturesRv)
+    RecyclerView picturesRv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +51,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         ButterKnife.bind(this);
 
         presenter = new MainPresenter(this);
+
+        picturesRv.setLayoutManager(new GridLayoutManager(this, 2));
+        picturesRv.setHasFixedSize(true);
     }
 
     private void checkPermissions() {
@@ -89,6 +103,22 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void showMainView() {
         takePictureFab.setVisibility(View.VISIBLE);
         requestPermissionsBtn.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showEmptyState(boolean show) {
+        if (show) {
+            emptyStateTv.setVisibility(View.VISIBLE);
+            picturesRv.setVisibility(View.GONE);
+        } else {
+            emptyStateTv.setVisibility(View.GONE);
+            picturesRv.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void setAdapter(PictureAdapter adapter) {
+        picturesRv.setAdapter(adapter);
     }
 
     @OnClick(R.id.takePictureFab)

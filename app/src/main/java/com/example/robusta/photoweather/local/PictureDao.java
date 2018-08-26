@@ -18,6 +18,9 @@ public interface PictureDao {
     @Query("SELECT * FROM picture")
     List<Picture> getAll();
 
+    @Query("SELECT * FROM picture WHERE id= :id")
+    Picture getPicture(String id);
+
     @Insert
     void insert(Picture picture);
 

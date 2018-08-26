@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Photo Weather</string>
+    <string name="dark_sky_base_url" translatable="false">https://api.darksky.net/</string>
+    <string name="dark_sky_secret_key" translatable="false">5be531c20a11ac168274d8bda4cbac35</string>
 </resources>

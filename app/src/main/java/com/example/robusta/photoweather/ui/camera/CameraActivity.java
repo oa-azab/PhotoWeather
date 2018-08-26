@@ -2,8 +2,10 @@ package com.example.robusta.photoweather.ui.camera;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +13,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.robusta.photoweather.R;
@@ -32,6 +36,9 @@ import io.fotoapparat.result.PhotoResult;
 import io.fotoapparat.result.WhenDoneListener;
 import io.fotoapparat.view.CameraView;
 
+import static com.example.robusta.photoweather.util.BitmapUtil.createBitmapFromView;
+import static com.example.robusta.photoweather.util.BitmapUtil.overlay;
+import static com.example.robusta.photoweather.util.BitmapUtil.rotateBitmap;
 import static io.fotoapparat.log.LoggersKt.fileLogger;
 import static io.fotoapparat.log.LoggersKt.logcat;
 import static io.fotoapparat.log.LoggersKt.loggers;
@@ -63,7 +70,22 @@ public class CameraActivity extends AppCompatActivity implements CameraContract.
     @BindView(R.id.addWeatherBtn)
     Button addWeatherBtn;
 
+    @BindView(R.id.weatherCard)
+    ConstraintLayout weatherCard;
+    @BindView(R.id.temperatureTv)
+    TextView temperatureTv;
+    @BindView(R.id.summaryTv)
+    TextView summaryTv;
+
+    @BindView(R.id.savePictureBtn)
+    Button savePictureBtn;
+    @BindView(R.id.cancelPictureBtn)
+    Button cancelPictureBtn;
+
     private Fotoapparat fotoapparat;
+
+    private Bitmap picture;
+    private Bitmap weatherPicture;
 
     private CameraConfiguration cameraConfiguration = CameraConfiguration
             .builder()
@@ -138,10 +160,8 @@ public class CameraActivity extends AppCompatActivity implements CameraContract.
     private void takePicture() {
         PhotoResult photoResult = fotoapparat.takePicture();
 
-        // photoResult.saveToFile(new File(getExternalFilesDir("photos"), "photo.jpg"));
-
         photoResult
-                .toBitmap(scaled(0.25f))
+                .toBitmap(scaled(0.5f))
                 .whenDone(new WhenDoneListener<BitmapPhoto>() {
                     @Override
                     public void whenDone(@Nullable BitmapPhoto bitmapPhoto) {
@@ -151,8 +171,8 @@ public class CameraActivity extends AppCompatActivity implements CameraContract.
                         }
 
                         showPreview();
-                        Bitmap rotatedBitmap = rotateBitmap(bitmapPhoto.bitmap, -bitmapPhoto.rotationDegrees);
-                        previewImg.setImageBitmap(rotatedBitmap);
+                        picture = rotateBitmap(bitmapPhoto.bitmap, -bitmapPhoto.rotationDegrees);
+                        previewImg.setImageBitmap(picture);
                         Log.d(TAG, "[takePicture] rotationDegree" + bitmapPhoto.rotationDegrees);
                     }
                 });
@@ -163,12 +183,20 @@ public class CameraActivity extends AppCompatActivity implements CameraContract.
         return this;
     }
 
-    private Bitmap rotateBitmap(Bitmap source, float rotationDegree) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(rotationDegree);
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(source, source.getWidth(), source.getHeight(), true);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-        return rotatedBitmap;
+    @Override
+    public void showWeatherCard(String temperature, String summary) {
+        weatherCard.setVisibility(View.VISIBLE);
+        temperatureTv.setText(temperature);
+        summaryTv.setText(summary);
+
+        Bitmap card = createBitmapFromView(weatherCard);
+        weatherPicture = overlay(picture, card);
+        previewImg.setImageBitmap(weatherPicture);
+        weatherCard.setVisibility(View.GONE);
+
+        addWeatherBtn.setVisibility(View.GONE);
+        savePictureBtn.setVisibility(View.VISIBLE);
+        cancelPictureBtn.setVisibility(View.VISIBLE);
     }
 
     private void showPreview() {
@@ -181,5 +209,15 @@ public class CameraActivity extends AppCompatActivity implements CameraContract.
     @OnClick(R.id.addWeatherBtn)
     public void addWeatherClicked() {
         presenter.addWeather();
+    }
+
+    @OnClick(R.id.savePictureBtn)
+    public void savePictureClicked() {
+        presenter.savePicture(weatherPicture);
+    }
+
+    @OnClick(R.id.cancelPictureBtn)
+    public void cancelPictureClicked() {
+
     }
 }
